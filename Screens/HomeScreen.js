@@ -6,7 +6,6 @@ export default function Home() {
   return (
     <View style={styles.container}>
       <Text>Welcome to Home screen</Text>
-      <StatusBar style="auto" />
     </View>
   );
 }

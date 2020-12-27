@@ -6,7 +6,6 @@ export default function Register() {
   return (
     <View style={styles.container}>
       <Text>Welcome to Register screen</Text>
-      <StatusBar style="auto" />
     </View>
   );
 }
