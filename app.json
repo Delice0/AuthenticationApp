@@ -1,0 +1,12 @@
+{
+  "name": "AuthenticationApp",
+  "displayName": "AuthenticationApp",
+  "expo": {
+    "name": "AuthenticationApp",
+    "slug": "AuthenticationApp",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
