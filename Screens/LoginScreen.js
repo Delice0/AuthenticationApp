@@ -62,7 +62,6 @@ const styles = StyleSheet.create({
     registerText: {
         textAlign: 'center',
         color: '#7a42f4',
-        fontSize: 15,
     },
 });
 
