@@ -18,6 +18,12 @@ const DATABASE_OPTIONS = {
     inMemory: true,
 }
 
+closeDatabase = (realm) => {
+    if (realm !== null && !realm.isClosed) {
+        realm.close()
+    }
+}
+
 export const CreateUser = (id, username, password) => {
     return (
         Realm.open({
@@ -27,9 +33,7 @@ export const CreateUser = (id, username, password) => {
                 realm.create(USER_TABLE, { id: id + 1, username: username, password: password });
             })
 
-            if (realm !== null && !realm.isClosed) {
-                realm.close()
-            }
+            this.closeDatabase(realm)
         }).catch((error) => console.log('Something went wrong when creating user\n' + "Error: " + error))
     )
 }
