@@ -56,7 +56,7 @@ export const doesUserExist = (inputUser, inputPass) => {
     return isUserValid
 }
 
-export const CreateUser = (username, password) => {
+export const createUser = (username, password) => {
     let realm = new Realm(DATABASE_OPTIONS)
 
     let allUsers = realm.objects(USER_TABLE)
