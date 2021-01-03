@@ -65,9 +65,7 @@ class Login extends React.Component {
     render() {
         return (
             <View style={{ marginTop: 50 }}>
-                <Text
-                    style={styles.credentialsText}>
-                    Credentials </Text>
+                <Text style={styles.credentialsText}> Credentials </Text>
 
                 <View>
                     <TextInput
