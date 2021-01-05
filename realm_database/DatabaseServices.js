@@ -57,22 +57,25 @@ export const doesUserExist = (inputUser, inputPass) => {
 }
 
 export const createUser = (username, password) => {
-    let realm = new Realm(DATABASE_OPTIONS)
+    const realm = new Realm(DATABASE_OPTIONS)
 
-    let allUsers = realm.objects(USER_TABLE)
+    console.log("Fetching all users from realm objects..")
+    const allUsers = realm.objects(USER_TABLE)
     
+    console.log("Beginning transaction..")
     realm.beginTransaction()
 
-    let lastUserId = undefined
-    console.log("Last user id first: " + lastUserId)
+    let lastUserId
 
     if (allUsers.length == 0) {
         lastUserId = 0
-        console.log("Last user id second: " + lastUserId)
+
         console.log("No users in database..")
     } else {
         lastUserId = allUsers.sorted("id", true)[0].id
-        console.log("Last user id third: " + lastUserId)
+
+        console.log("Last user ID: " + lastUserId)
+
         console.log("######### Querying all users #########")
         for (let index = 0; index < allUsers.length; index++) {
             console.log(
@@ -84,16 +87,17 @@ export const createUser = (username, password) => {
         console.log("######### Done querying all users #########")
     }
 
-    console.log("Last user ID: " + lastUserId)
-
-    let nextUserId = lastUserId == 0 ? 1 : lastUserId + 1
+    let nextUserId = lastUserId === 0 ? 1 : lastUserId + 1
 
     console.log("Next user ID is: " + nextUserId)
 
+    console.log("Creating user: [\n\tID: " + nextUserId + "\n\tUsername: " + username + "\n\tPassword: " + password)
     realm.create(USER_TABLE, { id: nextUserId, username: username, password: password });
-    console.log("Created new user: " + "[\n\tID: " + nextUserId + "\n\tUsername: " + username + "\n\tPassword: " + password + "\n]")
 
+    console.log("Commiting transaction..")
     realm.commitTransaction()
+
+    console.log("Closing transaction..")
     realm.close()
 }
 export default new Realm(DATABASE_OPTIONS)
