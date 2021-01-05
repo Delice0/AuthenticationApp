@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CheckBox from '@react-native-community/checkbox';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -9,20 +10,99 @@ class Login extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            isRememberMeToggled: false,
-            inputUsername: '',
-            inputPassword: '',
+            rememberMe: false,
+            username: '',
+            password: '',
             showErrorOnUsernameValidation: false,
             showErrorOnPasswordValidation: false,
         }
     }
 
+    componentDidMount() {
+        // Simple listener that executes everytime this 'Login'-screen get in focus
+        this._unsubscribe = this.props.navigation.addListener('focus', async () => {
+            try {
+                if (this.state.rememberMe) {
+                    const user = await this.getRememberedUser()
+                    const username = user[0]
+                    const password = user[1]
+
+                    this.setState({
+                        username: username,
+                        password: password,
+                        rememberMe: true
+                    })
+                } else {
+                    // If validation returns false - delete user from AsyncStorage and clear username + password
+                    console.log("Validation failed. Removing user from storage!")
+                    this.forgetUser()
+
+                    console.log("Clearing user credential states..")
+                    this.setState({
+                        username: '',
+                        password: '',
+                        rememberMe: false
+                    })
+                }
+            } catch (error) {
+                console.log("Could not fetch remembered user \n" + error)
+            }
+        })
+    }
+
+    componentWillUnmount() {
+        // Remove listener when component unmounts
+        this._unsubscribe()
+    }
+
+    async rememberUser() {
+        try {
+            console.log("Adding user to storage..")
+            await AsyncStorage.setItem("USER", this.state.username)
+            await AsyncStorage.setItem("PASS", this.state.password)
+        } catch (error) {
+            console.error("Could not save user: " + error)
+        }
+    }
+
+    async getRememberedUser() {
+        try {
+            const username = await AsyncStorage.getItem("USER")
+            const password = await AsyncStorage.getItem("PASS")
+
+            console.log("Remembered user from storage: \nUsername: " + username + "\nPassword: " + password)
+            if (username !== null && password !== null) {
+                return [username, password]
+            }
+        } catch (error) {
+            console.log("Could not fetch username nor password: " + error)
+        }
+    }
+
+    async forgetUser() {
+        try {
+            console.log("Removing user from storage..")
+
+            await AsyncStorage.removeItem("USER")
+            await AsyncStorage.removeItem("PASS")
+        } catch (error) {
+            console.log("Could not remove user: " + error)
+        }
+    }
+
+    toggleRememberMe(value) {
+        console.log("Remember me toggled. Value is: " + value)
+
+        this.setState({ rememberMe: value })
+        value ? this.rememberUser() : this.forgetUser()
+    }
+
     isUsernameInputFieldEmpty() {
-        return this.state.inputUsername.trim() === ''
+        return this.state.username.trim() === ''
     }
 
     isPasswordInputFieldEmpty() {
-        return this.state.inputPassword.trim() === ''
+        return this.state.password.trim() === ''
     }
 
     validateUsernameInputField() {
@@ -33,31 +113,23 @@ class Login extends React.Component {
         this.setState({ showErrorOnPasswordValidation: this.isPasswordInputFieldEmpty() })
     }
 
-    showErrorIfUsernameNotValid() {
-        return <HelperText
-            style={styles.helperText}
-            type="error"
-            visible={this.state.showErrorOnUsernameValidation}>
-            Username cannot be empty! </HelperText>
-    }
-
-    showErrorIfPasswordNotValid() {
-        return <HelperText
-            style={styles.helperText}
-            type="error"
-            visible={this.state.showErrorOnPasswordValidation}>
-            Password cannot be empty! </HelperText>
-    }
-
     onPressSubmit() {
-        const { inputUsername, inputPassword } = this.state
+        const { username, password } = this.state
 
+        console.log("Submit button pressed. Validating fields before logging in..")
         if (this.isUsernameInputFieldEmpty() || this.isPasswordInputFieldEmpty()) {
+            console.log("Failed login validation")
+
             alert("Please fill both username and password!")
-        } else if (doesUserExist(inputUsername, inputPassword)) {
+        } else if (doesUserExist(username, password)) {
+            console.log("Login validation succeeded! Navigating to home page..")
+
             this.props.navigation.navigate('Home')
-            alert("Welcome " + inputUsername + "!")
+
+            alert("Welcome " + username + "!")
         } else {
+            console.log("Failed login validation. User does not exist!")
+
             alert("User does not exists!")
         }
     }
@@ -72,9 +144,14 @@ class Login extends React.Component {
                         style={styles.input}
                         placeholder='Please enter username here..'
                         placeholderTextColor="#9a73ef"
-                        onChangeText={(input) => this.setState({ inputUsername: input })} />
+                        value={this.state.username}
+                        onChangeText={(input) => this.setState({ username: input })} />
 
-                    {this.showErrorIfUsernameNotValid()}
+                    <HelperText
+                        style={styles.helperText}
+                        type="error"
+                        visible={this.state.showErrorOnUsernameValidation}>
+                        Username cannot be empty! </HelperText>
                 </View>
 
                 <View>
@@ -82,9 +159,14 @@ class Login extends React.Component {
                         style={styles.input}
                         placeholder='Please enter password here..'
                         placeholderTextColor="#9a73ef"
-                        onChangeText={(input) => this.setState({ inputPassword: input })} />
+                        value={this.state.password}
+                        onChangeText={(input) => this.setState({ password: input })} />
 
-                    {this.showErrorIfPasswordNotValid()}
+                    <HelperText
+                        style={styles.helperText}
+                        type="error"
+                        visible={this.state.showErrorOnPasswordValidation}>
+                        Password cannot be empty! </HelperText>
                 </View>
 
                 <View style={{ flexDirection: 'row' }}>
@@ -92,8 +174,8 @@ class Login extends React.Component {
                         <CheckBox
                             style={{ justifyContent: 'flex-end', marginLeft: 10 }}
                             disabled={false}
-                            value={this.state.isRememberMeToggled}
-                            onValueChange={(value) => this.setState({ isRememberMeToggled: value })} >
+                            value={this.state.rememberMe}
+                            onValueChange={(value) => this.toggleRememberMe(value)} >
                         </CheckBox>
                     </View>
 
