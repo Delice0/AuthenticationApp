@@ -33,8 +33,8 @@ class Login extends React.Component {
                         rememberMe: true
                     })
                 } else {
-                    // If validation returns false - delete user from AsyncStorage and clear username + password
-                    console.log("Validation failed. Removing user from storage!")
+                    // Delete user from AsyncStorage and clear username + password
+                    console.log("Removing user from storage..")
                     this.forgetUser()
 
                     console.log("Clearing user credential states..")
