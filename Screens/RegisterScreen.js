@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
 import { HelperText } from 'react-native-paper';
-import { createUser } from '../realm_database/DatabaseServices'
+import { createUser } from '../realm_database/Database'
 
 class Register extends Component {
   constructor(props) {

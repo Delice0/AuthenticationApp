@@ -4,7 +4,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
 import { HelperText } from 'react-native-paper';
-import { doesUserExist } from '../realm_database/DatabaseServices'
+import { doesUserExist } from '../realm_database/Database'
 
 class Login extends React.Component {
     constructor(props) {
